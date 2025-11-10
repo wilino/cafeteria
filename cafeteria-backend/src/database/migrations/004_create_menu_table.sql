@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS menu (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  nombre VARCHAR(120) UNIQUE NOT NULL,
+  descripcion TEXT,
+  precio DECIMAL(10,2) NOT NULL,
+  activo TINYINT(1) DEFAULT 1,
+  imagen_url VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_nombre (nombre),
+  INDEX idx_activo (activo),
+  INDEX idx_precio (precio)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

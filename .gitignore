@@ -1,0 +1,39 @@
+# Monorepo gitignore
+
+# Node modules en ambos proyectos
+cafeteria-backend/node_modules/
+cafeteria-frontend/node_modules/
+
+# Environment files
+cafeteria-backend/.env
+cafeteria-frontend/.env
+
+# Certificates
+cafeteria-backend/cert/
+*.pem
+
+# Logs
+cafeteria-backend/logs/
+cafeteria-frontend/logs/
+*.log
+
+# Build outputs
+cafeteria-backend/dist/
+cafeteria-frontend/dist/
+cafeteria-frontend/build/
+
+# Coverage
+coverage/
+
+# macOS
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Documentation stays in root docs/
+# docs/ shared by frontend and backend

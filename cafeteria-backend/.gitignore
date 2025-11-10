@@ -1,0 +1,12 @@
+node_modules/
+.env
+cert/
+*.log
+.DS_Store
+coverage/
+dist/
+logs/
+*.pem
+
+# Documentation (kept in docs/)
+# README.md stays in root
