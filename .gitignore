@@ -35,5 +35,5 @@ coverage/
 *.swo
 *~
 
-# Documentation stays in root docs/
-# docs/ shared by frontend and backend
+# Documentation (local only)
+docs/
