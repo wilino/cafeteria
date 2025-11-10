@@ -12,7 +12,7 @@ class MenuRepository {
    */
   async findAll() {
     const [rows] = await pool.execute(
-      'SELECT * FROM menu ORDER BY categoria, nombre ASC'
+      'SELECT * FROM menu ORDER BY nombre ASC'
     );
     return rows;
   }
@@ -23,7 +23,7 @@ class MenuRepository {
    */
   async findAvailable() {
     const [rows] = await pool.execute(
-      'SELECT * FROM menu WHERE disponible = 1 ORDER BY categoria, nombre ASC'
+      'SELECT * FROM menu WHERE activo = 1 ORDER BY nombre ASC'
     );
     return rows;
   }

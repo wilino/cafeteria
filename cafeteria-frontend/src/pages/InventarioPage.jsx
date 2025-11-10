@@ -43,8 +43,10 @@ export const InventarioPage = () => {
   const [error, setError] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [stockItem, setStockItem] = useState(null);
+  const [itemToDelete, setItemToDelete] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
     stock: '',
