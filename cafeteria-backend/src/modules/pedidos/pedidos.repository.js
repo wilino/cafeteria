@@ -6,13 +6,16 @@ const pool = require('../../config/database.config');
 
 class PedidosRepository {
   async findAll(limit = 50, offset = 0) {
+    const finalLimit = parseInt(limit) || 50;
+    const finalOffset = parseInt(offset) || 0;
+    
     const [rows] = await pool.execute(
       `SELECT p.*, u.nombre as cliente_nombre 
        FROM pedidos p
        JOIN users u ON p.user_id = u.id
        ORDER BY p.created_at DESC
        LIMIT ? OFFSET ?`,
-      [limit, offset]
+      [finalLimit, finalOffset]
     );
     return rows;
   }
@@ -34,12 +37,15 @@ class PedidosRepository {
   }
 
   async findByCliente(clienteId, limit = 50, offset = 0) {
+    const finalLimit = parseInt(limit) || 50;
+    const finalOffset = parseInt(offset) || 0;
+    
     const [rows] = await pool.execute(
       `SELECT * FROM pedidos 
        WHERE user_id = ? 
        ORDER BY created_at DESC
        LIMIT ? OFFSET ?`,
-      [clienteId, limit, offset]
+      [clienteId, finalLimit, finalOffset]
     );
     return rows;
   }
