@@ -32,12 +32,31 @@ Crea usuarios de prueba para cada rol del sistema con contraseñas seguras.
 mysql -u cafeapp -p'cafe_secure_2024' cafedb < src/database/migrations/002_seed_test_users.sql
 ```
 
+### 003_seed_menu_ingredientes.sql
+Crea datos de prueba completos para el sistema:
+- **31 ingredientes** organizados por categoría (cafés, leches, endulzantes, etc.)
+- **26 productos en menú** (cafés calientes, fríos, tés, repostería)
+- **64 relaciones** menú-ingredientes con cantidades exactas
+
+**Categorías incluidas:**
+- ☕ Cafés calientes (8 productos)
+- 🧊 Cafés fríos (5 productos)
+- ⭐ Bebidas especiales (5 productos)
+- 🍵 Tés (3 productos)
+- 🥐 Repostería (5 productos)
+
+**Ejecutar:**
+```bash
+mysql -u cafeapp -p'cafe_secure_2024' cafedb < src/database/migrations/003_seed_menu_ingredientes.sql
+```
+
 ## Orden de Ejecución
 
 Las migraciones deben ejecutarse en orden numérico:
 
-1. Primero: `001_initial_schema.sql` - Crea la estructura de la base de datos
-2. Segundo: `002_seed_test_users.sql` - Crea usuarios de prueba
+1. **001_initial_schema.sql** - Crea la estructura de la base de datos
+2. **002_seed_test_users.sql** - Crea usuarios de prueba
+3. **003_seed_menu_ingredientes.sql** - Crea productos, ingredientes e inventario
 
 ## Verificación
 
@@ -71,6 +90,16 @@ Para revertir los usuarios de prueba:
 DELETE FROM users WHERE email IN ('admin@cafe.com', 'barista@cafe.com', 'cliente@cafe.com');
 ```
 
+Para limpiar productos e ingredientes:
+
+```sql
+DELETE FROM menu_ingredientes;
+DELETE FROM pedido_items;
+DELETE FROM pedidos;
+DELETE FROM menu;
+DELETE FROM ingredientes;
+```
+
 Para recrear la base de datos desde cero:
 
 ```bash
@@ -84,6 +113,7 @@ EOF
 # Luego ejecutar las migraciones en orden
 mysql -u cafeapp -p'cafe_secure_2024' cafedb < src/database/migrations/001_initial_schema.sql
 mysql -u cafeapp -p'cafe_secure_2024' cafedb < src/database/migrations/002_seed_test_users.sql
+mysql -u cafeapp -p'cafe_secure_2024' cafedb < src/database/migrations/003_seed_menu_ingredientes.sql
 ```
 
 ## Generar Nuevos Hashes de Contraseñas

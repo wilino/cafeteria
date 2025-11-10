@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Box,
-  Container,
   Paper,
   TextField,
   Button,
@@ -63,25 +62,33 @@ export const LoginPage = () => {
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        bgcolor: 'background.default',
+        px: 2,
+      }}
+    >
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: 4, 
+          width: '100%',
+          maxWidth: 450,
         }}
       >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Box sx={{ textAlign: 'center', mb: 3 }}>
-            <LockOpen sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
-            <Typography variant="h4" component="h1" gutterBottom>
-              ☕ Cafetería
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Inicia sesión para continuar
-            </Typography>
-          </Box>
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
+          <LockOpen sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+          <Typography variant="h4" component="h1" gutterBottom>
+            ☕ Cafetería
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Inicia sesión para continuar
+          </Typography>
+        </Box>
 
           {error && (
             <Alert severity="error" sx={{ mb: 2 }}>
@@ -168,7 +175,6 @@ export const LoginPage = () => {
             </Box>
           </form>
         </Paper>
-      </Box>
-    </Container>
+    </Box>
   );
 };
