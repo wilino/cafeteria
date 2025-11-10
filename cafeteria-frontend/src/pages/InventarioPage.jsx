@@ -47,9 +47,9 @@ export const InventarioPage = () => {
   const [stockItem, setStockItem] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
-    cantidad: '',
+    stock: '',
     unidad: '',
-    cantidad_minima: '10',
+    stock_minimo: '10',
   });
   const [stockAmount, setStockAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -77,13 +77,13 @@ export const InventarioPage = () => {
       setEditingItem(item);
       setFormData({
         nombre: item.nombre,
-        cantidad: item.cantidad,
+        stock: item.stock,
         unidad: item.unidad,
-        cantidad_minima: item.cantidad_minima || '10',
+        stock_minimo: item.stock_minimo || '10',
       });
     } else {
       setEditingItem(null);
-      setFormData({ nombre: '', cantidad: '', unidad: '', cantidad_minima: '10' });
+      setFormData({ nombre: '', stock: '', unidad: '', stock_minimo: '10' });
     }
     setFormOpen(true);
   };
@@ -146,7 +146,7 @@ export const InventarioPage = () => {
   };
 
   const isLowStock = (item) => {
-    return parseFloat(item.cantidad) < parseFloat(item.cantidad_minima || 10);
+    return parseFloat(item.stock) < parseFloat(item.stock_minima || 10);
   };
 
   if (loading) {
@@ -194,7 +194,7 @@ export const InventarioPage = () => {
               <TableRow key={item.id}>
                 <TableCell>{item.nombre}</TableCell>
                 <TableCell align="right">
-                  {parseFloat(item.cantidad).toFixed(2)}
+                  {parseFloat(item.stock).toFixed(2)}
                 </TableCell>
                 <TableCell>{item.unidad}</TableCell>
                 <TableCell>
@@ -265,7 +265,7 @@ export const InventarioPage = () => {
             fullWidth
             label="Cantidad"
             type="number"
-            value={formData.cantidad}
+            value={formData.stock}
             onChange={(e) => setFormData({ ...formData, cantidad: e.target.value })}
             margin="normal"
             required
@@ -284,7 +284,7 @@ export const InventarioPage = () => {
             fullWidth
             label="Cantidad Mínima (alerta)"
             type="number"
-            value={formData.cantidad_minima}
+            value={formData.stock_minima}
             onChange={(e) => setFormData({ ...formData, cantidad_minima: e.target.value })}
             margin="normal"
             inputProps={{ step: '1', min: '0' }}
@@ -297,7 +297,7 @@ export const InventarioPage = () => {
             onClick={handleSaveItem}
             disabled={
               !formData.nombre ||
-              !formData.cantidad ||
+              !formData.stock ||
               !formData.unidad ||
               submitting
             }
@@ -320,7 +320,7 @@ export const InventarioPage = () => {
             {stockItem?.nombre}
           </Typography>
           <Typography variant="body2" gutterBottom>
-            Stock actual: {parseFloat(stockItem?.cantidad || 0).toFixed(2)} {stockItem?.unidad}
+            Stock actual: {parseFloat(stockItem?.stock || 0).toFixed(2)} {stockItem?.unidad}
           </Typography>
           <TextField
             fullWidth

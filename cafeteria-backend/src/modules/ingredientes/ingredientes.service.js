@@ -42,19 +42,19 @@ class IngredientesService {
    * @returns {Promise<object>} Created ingrediente
    */
   async createIngrediente(ingredienteData) {
-    const { nombre, unidadMedida, cantidadDisponible, cantidadMinima } = ingredienteData;
+    const { nombre, unidad, stock, stockMinimo } = ingredienteData;
 
     // Validate input
-    if (!nombre || !unidadMedida) {
-      throw new ValidationError('Missing required fields: nombre, unidadMedida');
+    if (!nombre || !unidad) {
+      throw new ValidationError('Missing required fields: nombre, unidad');
     }
 
-    if (cantidadDisponible !== undefined && !isValidDecimal(cantidadDisponible)) {
-      throw new ValidationError('Invalid cantidadDisponible');
+    if (stock !== undefined && !isValidDecimal(stock)) {
+      throw new ValidationError('Invalid stock');
     }
 
-    if (cantidadMinima !== undefined && !isValidDecimal(cantidadMinima)) {
-      throw new ValidationError('Invalid cantidadMinima');
+    if (stockMinimo !== undefined && !isValidDecimal(stockMinimo)) {
+      throw new ValidationError('Invalid stockMinimo');
     }
 
     // Check if ingrediente already exists
@@ -66,9 +66,9 @@ class IngredientesService {
     // Create ingrediente
     const ingredienteId = await ingredientesRepository.create({
       nombre,
-      unidadMedida,
-      cantidadDisponible: cantidadDisponible || 0,
-      cantidadMinima: cantidadMinima || 0,
+      unidad,
+      stock: stock || 0,
+      stockMinimo: stockMinimo || 0,
     });
 
     logger.info('Ingrediente created', { ingredienteId });

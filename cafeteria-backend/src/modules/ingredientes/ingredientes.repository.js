@@ -49,10 +49,10 @@ class IngredientesRepository {
    * @returns {Promise<number>} Inserted ingrediente ID
    */
   async create(ingredienteData) {
-    const { nombre, unidadMedida, cantidadDisponible, cantidadMinima } = ingredienteData;
+    const { nombre, unidad, stock, stockMinimo } = ingredienteData;
     const [result] = await pool.execute(
-      'INSERT INTO ingredientes (nombre, unidad_medida, cantidad_disponible, cantidad_minima) VALUES (?, ?, ?, ?)',
-      [nombre, unidadMedida, cantidadDisponible, cantidadMinima]
+      'INSERT INTO ingredientes (nombre, unidad, stock, stock_minimo) VALUES (?, ?, ?, ?)',
+      [nombre, unidad, stock, stockMinimo]
     );
     return result.insertId;
   }
@@ -116,7 +116,7 @@ class IngredientesRepository {
    */
   async findLowStock() {
     const [rows] = await pool.execute(
-      'SELECT * FROM ingredientes WHERE cantidad_disponible <= cantidad_minima ORDER BY cantidad_disponible ASC'
+      'SELECT * FROM ingredientes WHERE stock <= stock_minimo ORDER BY stock ASC'
     );
     return rows;
   }
@@ -129,7 +129,7 @@ class IngredientesRepository {
    */
   async updateStock(id, cantidad) {
     const [result] = await pool.execute(
-      'UPDATE ingredientes SET cantidad_disponible = cantidad_disponible + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+      'UPDATE ingredientes SET stock = stock + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
       [cantidad, id]
     );
     return result.affectedRows > 0;
