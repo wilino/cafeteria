@@ -88,10 +88,10 @@ class AuthService {
   /**
    * Login user
    * @param {object} credentials - Login credentials
-   * @returns {Promise<object>} User info and token
+   * @returns {Promise<object>} User info and token (or MFA required)
    */
   async login(credentials) {
-    const { email, password } = credentials;
+    const { email, password, mfaToken } = credentials;
 
     // Validate input
     if (!email || !password) {
@@ -115,6 +115,27 @@ class AuthService {
       throw new AuthenticationError('Invalid credentials');
     }
 
+    // Check if MFA is enabled
+    if (user.mfa_enabled && user.mfa_secret) {
+      // MFA is required
+      if (!mfaToken) {
+        logger.info('MFA required for login', { userId: user.id, email });
+        return {
+          mfaRequired: true,
+          tempToken: generateToken({ userId: user.id, temp: true }, '5m'),
+        };
+      }
+
+      // Verify MFA token
+      const mfaService = require('../mfa/mfa.service');
+      const mfaValid = await mfaService.verifyToken(user.id, mfaToken);
+      
+      if (!mfaValid) {
+        logger.warn('Invalid MFA token during login', { userId: user.id, email });
+        throw new AuthenticationError('Invalid MFA token');
+      }
+    }
+
     // Update last login
     await authRepository.updateLastLogin(user.id);
 
@@ -136,6 +157,7 @@ class AuthService {
         nombre: user.nombre,
         email: user.email,
         role: user.role_name,
+        mfaEnabled: user.mfa_enabled === 1,
       },
       token,
     };

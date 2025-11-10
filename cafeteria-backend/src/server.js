@@ -115,6 +115,7 @@ app.get('/api', (req, res) => {
       menu: '/api/menu',
       ingredientes: '/api/ingredientes',
       pedidos: '/api/pedidos',
+      mfa: '/api/mfa',
     },
   });
 });
@@ -125,12 +126,14 @@ const usersRoutes = require('./modules/users/users.routes');
 const ingredientesRoutes = require('./modules/ingredientes/ingredientes.routes');
 const menuRoutes = require('./modules/menu/menu.routes');
 const pedidosRoutes = require('./modules/pedidos/pedidos.routes');
+const mfaRoutes = require('./modules/mfa/mfa.routes');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/ingredientes', ingredientesRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/pedidos', pedidosRoutes);
+app.use('/api/mfa', mfaRoutes);
 // const ingredientesRoutes = require('./modules/ingredientes/ingredientes.routes');
 // const pedidosRoutes = require('./modules/pedidos/pedidos.routes');
 //
