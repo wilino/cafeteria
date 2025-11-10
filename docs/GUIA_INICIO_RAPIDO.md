@@ -386,14 +386,32 @@ npm install
 
 ---
 
-## 🎓 Usuario Admin por Defecto
+## 🎓 Usuarios de Prueba
 
-Después de ejecutar las migraciones del backend, tendrás un usuario admin:
+Después de ejecutar las migraciones del backend, tendrás estos usuarios de prueba:
 
-- **Email**: `admin@cafeteria.com`
-- **Password**: `Admin123!`
+### 👨‍💼 Administrador
+- **Email**: `admin@cafe.com`
+- **Password**: `Adm!n#2025.Cafe_Latte`
+- **Permisos**: Acceso completo al sistema
 
-**IMPORTANTE**: Cambia esta contraseña en producción.
+### 👨‍🍳 Empleado (Barista)
+- **Email**: `barista@cafe.com`
+- **Password**: `B@r1st@#2025.Espresso`
+- **Permisos**: Gestión de inventario y pedidos
+
+### 👤 Cliente
+- **Email**: `cliente@cafe.com`
+- **Password**: `Cl!ente#2025.Mocha_Safe`
+- **Permisos**: Ver menú y crear pedidos
+
+**⚠️ IMPORTANTE**: Estas son contraseñas de prueba. En producción, cada usuario debe cambiar su contraseña inmediatamente después del primer login.
+
+**Crear usuarios**: Los usuarios se crean automáticamente al ejecutar las migraciones:
+```bash
+cd /Users/willy-pc/Maestria-Cato/Seguridad/cafeteria/cafeteria-backend
+mysql -u cafeapp -p'cafe_secure_2024' cafedb < src/database/migrations/002_seed_test_users.sql
+```
 
 ---
 

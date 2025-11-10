@@ -233,9 +233,11 @@ npm run dev
 
 | Rol | Email | Contraseña |
 |-----|-------|-----------|
-| **Admin** | admin@cafe.com | admin123 |
-| **Empleado** | empleado@cafe.com | empleado123 |
-| **Cliente** | cliente@cafe.com | cliente123 |
+| **Administrador** | admin@cafe.com | Adm!n#2025.Cafe_Latte |
+| **Empleado** | barista@cafe.com | B@r1st@#2025.Espresso |
+| **Cliente** | cliente@cafe.com | Cl!ente#2025.Mocha_Safe |
+
+> ⚠️ **Nota**: Estas son contraseñas de prueba seguras. Los usuarios se crean ejecutando la migración `002_seed_test_users.sql`.
 
 📖 **Guía completa:** [GUIA_INICIO_RAPIDO.md](./docs/GUIA_INICIO_RAPIDO.md)
 
