@@ -7,6 +7,7 @@ const router = express.Router();
 const pedidosController = require('./pedidos.controller');
 const authenticate = require('../../middlewares/auth.middleware');
 const { requirePermission, auditLog } = require('../../middlewares/permission.middleware');
+const idempotencyMiddleware = require('../../middlewares/idempotency.middleware');
 
 /**
  * @swagger
@@ -81,7 +82,7 @@ router.get('/:id', authenticate, requirePermission('pedidos.read'), pedidosContr
  *       201:
  *         description: Pedido created successfully
  */
-router.post('/', authenticate, requirePermission('pedidos.create'), auditLog('CREATE_PEDIDO', 'pedidos'), pedidosController.createPedido.bind(pedidosController));
+router.post('/', authenticate, idempotencyMiddleware, requirePermission('pedidos.create'), auditLog('CREATE_PEDIDO', 'pedidos'), pedidosController.createPedido.bind(pedidosController));
 
 /**
  * @swagger
