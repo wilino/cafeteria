@@ -1,50 +1,208 @@
-# 🏗️ Sistema de Cafetería - Monorepo
+# ☕ Sistema de Gestión de Cafetería
 
-Sistema completo de gestión de cafetería con **arquitectura separada frontend-backend**.
+Sistema completo de gestión de cafetería con arquitectura cliente-servidor, enfocado en seguridad y mejores prácticas de desarrollo.
+
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0+-blue.svg)](https://www.mysql.com/)
+[![React](https://img.shields.io/badge/React-18+-61DAFB.svg)](https://reactjs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
+## 📖 Documentación
+
+### 🚀 Para Empezar
+- **[Guía de Inicio Rápido](./docs/GUIA_INICIO_RAPIDO.md)** - Instalación en 5 minutos
+- **[Manual de Usuario](./docs/MANUAL_USUARIO.md)** - Guía completa de uso
+
+### 👥 Guías por Rol
+- **[Guía para Clientes](./docs/GUIA_CLIENTES.md)** - Cómo realizar pedidos
+- **[Guía para Empleados](./docs/GUIA_EMPLEADOS.md)** - Gestión operativa
+- **[Guía para Administradores](./docs/GUIA_ADMINISTRADORES.md)** - Administración completa
+
+### 🔒 Seguridad
+- **[Configuración MFA](./docs/CONFIGURACION_MFA.md)** - Autenticación de dos factores
+
+### 🆘 Soporte
+- **[Solución de Problemas](./docs/SOLUCION_PROBLEMAS.md)** - Troubleshooting
+- **[Preguntas Frecuentes](./docs/FAQ.md)** - FAQ
+- **[Contacto y Soporte](./docs/SOPORTE.md)** - Cómo obtener ayuda
+
+📚 **[Ver toda la documentación](./docs/README.md)**
+
+---
+
+## ✨ Características
+
+### 🔐 Seguridad (OWASP Top 10 Compliant)
+- ✅ **Autenticación JWT** con cookies HttpOnly
+- ✅ **MFA/TOTP** con QR codes y códigos de respaldo
+- ✅ **20 Permisos Granulares** (PBAC) - Sin rol con acceso total
+- ✅ **Audit Logging** en 29+ endpoints
+- ✅ **Protección CSRF** con tokens
+- ✅ **Rate Limiting** anti-fuerza bruta
+- ✅ **Idempotencia** para prevenir pedidos duplicados
+- ✅ **HTTPS/TLS** con certificados SSL
+- ✅ **Contraseñas hasheadas** con bcrypt
+- ✅ **Consultas preparadas** anti-SQL injection
+
+### 🍽️ Gestión de Cafetería
+- ✅ **Menú dinámico** con disponibilidad en tiempo real
+- ✅ **Sistema de pedidos** con estados rastreables
+- ✅ **Carrito de compras** con gestión de cantidades
+- ✅ **Gestión de inventario** con alertas de stock bajo
+- ✅ **Panel de control** con estadísticas por rol
+
+### 👥 Gestión de Usuarios
+- ✅ **3 Roles:** Cliente, Empleado, Administrador
+- ✅ **Permisos granulares** por acción
+- ✅ **Perfil de usuario** editable
+- ✅ **Cambio de contraseña** con validación
+- ✅ **Gestión de usuarios** (solo admin)
+
+### 💻 Experiencia de Usuario
+- ✅ **Interfaz moderna** con Material UI
+- ✅ **Responsive** - Funciona en móvil, tablet y desktop
+- ✅ **Modales de confirmación** para acciones críticas
+- ✅ **Feedback visual** con notificaciones
+- ✅ **Estilos centralizados** para consistencia
+- ✅ **Validación en tiempo real**
+
+---
+
+## 🏗️ Arquitectura
+
+```
+┌─────────────────────────────────────┐
+│     FRONTEND (Puerto 5173)          │
+│   React 18 + Vite + Material UI     │
+│                                     │
+│  • Componentes React                │
+│  • Context API (Auth)               │
+│  • Axios Interceptors               │
+│  • Protected Routes                 │
+│  • Centralized Styles               │
+└─────────────┬───────────────────────┘
+              │ HTTP/HTTPS REST API
+              │ JWT + CSRF Tokens
+┌─────────────▼───────────────────────┐
+│     BACKEND (Puertos 3000/3443)     │
+│   Node.js 20 + Express + MySQL      │
+│                                     │
+│  • Clean Architecture               │
+│  • Repository Pattern               │
+│  • Service Layer                    │
+│  • Permission Middleware            │
+│  • MFA Module                       │
+│  • Idempotency Middleware           │
+└─────────────┬───────────────────────┘
+              │ mysql2 (Prepared Statements)
+┌─────────────▼───────────────────────┐
+│      BASE DE DATOS (MySQL 8.0)      │
+│                                     │
+│  • 11 Tablas                        │
+│  • Migrations                       │
+│  • Seeds                            │
+│  • Audit Log                        │
+└─────────────────────────────────────┘
+```
+
+---
 
 ## 📁 Estructura del Proyecto
 
 ```
 cafeteria/
-├── README.md                    # Este archivo
-├── docs/                        # 📚 Documentación compartida (frontend + backend)
+├── README.md                      # Este archivo
+├── docs/                          # 📚 Documentación para usuarios
+│   ├── README.md                  # Índice de documentación
 │   ├── GUIA_INICIO_RAPIDO.md
-│   ├── PLAN_DESARROLLO_CLEAN_CODE.md
-│   ├── INSTALACION_SOFTWARE.md
-│   ├── CONECTAR_GITHUB.md
-│   └── ...
-├── cafeteria-backend/          # API REST Node.js + Express + MySQL
+│   ├── MANUAL_USUARIO.md
+│   ├── GUIA_CLIENTES.md
+│   ├── GUIA_EMPLEADOS.md
+│   ├── GUIA_ADMINISTRADORES.md
+│   ├── CONFIGURACION_MFA.md
+│   ├── SOLUCION_PROBLEMAS.md
+│   ├── FAQ.md
+│   └── SOPORTE.md
+│
+├── cafeteria-backend/             # 🔧 API REST
 │   ├── src/
+│   │   ├── config/               # Configuración
+│   │   ├── middlewares/          # Middlewares Express
+│   │   ├── modules/              # Módulos por dominio
+│   │   │   ├── auth/            # Autenticación JWT
+│   │   │   ├── users/           # Usuarios CRUD
+│   │   │   ├── mfa/             # MFA/TOTP
+│   │   │   ├── menu/            # Menú CRUD
+│   │   │   ├── ingredientes/    # Inventario
+│   │   │   └── pedidos/         # Pedidos
+│   │   ├── database/            # Migrations & Seeds
+│   │   └── server.js
+│   ├── .env                      # Variables de entorno
 │   ├── package.json
 │   └── README.md
 │
-└── cafeteria-frontend/         # Aplicación web
+└── cafeteria-frontend/            # 🎨 Aplicación Web
     ├── src/
-    ├── public/
+    │   ├── components/           # Componentes React
+    │   │   ├── ProtectedRoute.jsx
+    │   │   └── MainLayout.jsx
+    │   ├── pages/                # Páginas
+    │   │   ├── LoginPage.jsx
+    │   │   ├── RegisterPage.jsx
+    │   │   ├── DashboardPage.jsx
+    │   │   ├── MenuPage.jsx
+    │   │   ├── PedidosPage.jsx
+    │   │   ├── InventarioPage.jsx
+    │   │   ├── UsuariosPage.jsx
+    │   │   ├── ProfilePage.jsx
+    │   │   └── MFASetupPage.jsx
+    │   ├── context/              # Context API
+    │   │   └── AuthContext.jsx
+    │   ├── services/             # API Client
+    │   │   └── api.service.js
+    │   ├── styles/               # Estilos centralizados
+    │   │   └── commonStyles.js
+    │   └── App.jsx
+    ├── .env                      # Variables de entorno
     ├── package.json
     └── README.md
 ```
 
-> **📚 Documentación Compartida**: [docs/](./docs/)  
-> **🚀 Guía de Inicio**: [GUIA_INICIO_RAPIDO.md](./docs/GUIA_INICIO_RAPIDO.md)
-
-## 🚀 Características
-
-- ✅ **Arquitectura separada**: Frontend y Backend independientes
-- ✅ Autenticación JWT con cookies HttpOnly
-- ✅ Control de acceso basado en roles (RBAC)
-- ✅ Gestión de inventario de ingredientes
-- ✅ Menú dinámico con disponibilidad en tiempo real
-- ✅ Sistema de pedidos con transacciones atómicas
-- ✅ Protección CSRF
-- ✅ Rate limiting
-- ✅ Logging estructurado
-- ✅ Validación de entrada
-- ✅ Consultas preparadas (prevención de inyección SQL)
+---
 
 ## 🚀 Inicio Rápido
 
-### Backend (API)
+### 1. Requisitos Previos
+
+- **Node.js** 20.0 o superior
+- **MySQL** 8.0 o superior
+- **Git**
+
+### 2. Clonar el Repositorio
+
+```bash
+git clone https://github.com/wilino/cafeteria.git
+cd cafeteria
+```
+
+### 3. Configurar Base de Datos
+
+```bash
+mysql -u root -p
+```
+
+```sql
+CREATE DATABASE cafedb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'cafeapp'@'localhost' IDENTIFIED BY 'tu_contraseña_segura';
+GRANT ALL PRIVILEGES ON cafedb.* TO 'cafeapp'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+### 4. Configurar Backend
+
 ```bash
 cd cafeteria-backend
 npm install
@@ -52,250 +210,230 @@ cp .env.example .env
 # Editar .env con tus credenciales
 npm run migrate
 npm run dev
-# API corre en https://localhost:3443
 ```
 
-### Frontend (UI)
+✅ Backend corriendo en `http://localhost:3000` y `https://localhost:3443`
+
+### 5. Configurar Frontend
+
 ```bash
-cd cafeteria-frontend
+cd ../cafeteria-frontend
 npm install
+# Editar .env si es necesario
 npm run dev
-# UI corre en http://localhost:5173
 ```
 
-**Documentación completa**: [docs/GUIA_INICIO_RAPIDO.md](./docs/GUIA_INICIO_RAPIDO.md)
+✅ Frontend corriendo en `http://localhost:5173`
 
-## 📋 Requisitos Previos
+### 6. Acceder al Sistema
 
-- Node.js >= 20.0.0
-- MySQL >= 8.0
-- npm >= 10.0.0
-- OpenSSL (para certificados HTTPS locales)
-- Git (incluido con Xcode Command Line Tools)
+**URL:** `http://localhost:5173`
+
+**Usuarios de prueba:**
+
+| Rol | Email | Contraseña |
+|-----|-------|-----------|
+| **Admin** | admin@cafe.com | admin123 |
+| **Empleado** | empleado@cafe.com | empleado123 |
+| **Cliente** | cliente@cafe.com | cliente123 |
+
+📖 **Guía completa:** [GUIA_INICIO_RAPIDO.md](./docs/GUIA_INICIO_RAPIDO.md)
+
+---
 
 ## 🔧 Stack Tecnológico
 
 ### Backend
-- **Runtime**: Node.js 20+
-- **Framework**: Express 4+
-- **Base de datos**: MySQL 8+
-- **Autenticación**: JWT (HttpOnly cookies)
-- **Seguridad**: Helmet, CORS, Rate Limiting, CSRF
-- **Logging**: Winston
-- **Arquitectura**: Clean Architecture + SOLID
+- **Runtime:** Node.js 20+
+- **Framework:** Express 4.21+
+- **Base de Datos:** MySQL 8.0+ (mysql2)
+- **Autenticación:** JSON Web Tokens (jsonwebtoken)
+- **MFA:** speakeasy, qrcode
+- **Seguridad:** helmet, cors, express-rate-limit
+- **Logging:** winston
+- **Validación:** express-validator
+- **Otros:** bcryptjs, cookie-parser, dotenv, uuid
 
-### Frontend (Por implementar)
-- **Framework**: React/Vue/Vanilla JS
-- **Build**: Vite
-- **Styling**: CSS Modules / Tailwind
-- **HTTP Client**: Axios / Fetch
+### Frontend
+- **Framework:** React 18.3+
+- **Build Tool:** Vite 7.2+
+- **UI Library:** Material UI 5+
+- **Router:** react-router-dom 7+
+- **HTTP Client:** axios 1.7+
+- **State:** Context API
+- **Styling:** Material UI sx prop + Emotion
 
-## 🔧 Instalación
+### Base de Datos
+- **MySQL** 8.0.44
+- **11 Tablas:** users, roles, user_sessions, ingredientes, menu, pedidos, pedido_items, permissions, role_permissions, audit_log, idempotency_keys
+- **Migraciones** con SQL scripts
 
-### 1. Instalar Software Requerido
+---
 
-Consulta [docs/INSTALACION_SOFTWARE.md](./docs/INSTALACION_SOFTWARE.md) para instrucciones detalladas.
+## 📊 Sistema de Permisos
 
-### 2. Clonar el Proyecto
+### Roles y Permisos
 
-```bash
-cd /Users/willy-pc/Maestria-Cato/Seguridad
-# El proyecto ya está aquí
-```
+| Permiso | Admin | Empleado | Cliente |
+|---------|-------|----------|---------|
+| **Usuarios** ||||
+| view_users | ✅ | ❌ | ❌ |
+| create_users | ✅ | ❌ | ❌ |
+| edit_users | ✅ | ❌ | ❌ |
+| delete_users | ✅ | ❌ | ❌ |
+| **Menú** ||||
+| view_menu | ✅ | ✅ | ✅ |
+| create_menu_items | ✅ | ✅ | ❌ |
+| edit_menu_items | ✅ | ✅ | ❌ |
+| delete_menu_items | ✅ | ✅ | ❌ |
+| **Ingredientes** ||||
+| view_ingredientes | ✅ | ✅ | ❌ |
+| create_ingredientes | ✅ | ✅ | ❌ |
+| edit_ingredientes | ✅ | ✅ | ❌ |
+| delete_ingredientes | ✅ | ❌ | ❌ |
+| update_stock | ✅ | ✅ | ❌ |
+| **Pedidos** ||||
+| view_pedidos | ✅ | ✅ | ✅* |
+| create_pedidos | ✅ | ✅ | ✅ |
+| edit_pedidos | ✅ | ✅ | ❌ |
+| delete_pedidos | ✅ | ✅ | ❌ |
+| view_all_pedidos | ✅ | ✅ | ❌ |
+| cancel_pedidos | ✅ | ✅ | ❌ |
+| **Otros** ||||
+| view_stats | ✅ | ✅ | ❌ |
 
-### 3. Configurar Backend
+*Clientes solo ven sus propios pedidos
 
-```bash
-cd cafeteria/cafeteria-backend
-npm install
-cp .env.example .env
-nano .env  # Editar con tus credenciales
+---
 
-# Generar certificados SSL
-mkdir -p cert
-openssl req -x509 -newkey rsa:4096 -keyout cert/key.pem -out cert/cert.pem -days 365 -nodes -subj "/CN=localhost"
+## 🔐 Seguridad Implementada
 
-# Crear base de datos
-mysql -u root -p
-CREATE DATABASE cafedb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'cafeapp'@'localhost' IDENTIFIED BY 'cafe_secure_2024';
-GRANT ALL PRIVILEGES ON cafedb.* TO 'cafeapp'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
+### OWASP Top 10 2021 Compliance
 
-# Ejecutar migraciones
-npm run migrate
-```
+| Vulnerabilidad | Mitigación Implementada |
+|----------------|------------------------|
+| **A01: Broken Access Control** | ✅ PBAC con 20 permisos granulares, sin rol con acceso total |
+| **A02: Cryptographic Failures** | ✅ bcrypt para passwords, HTTPS/TLS, JWT secret fuerte |
+| **A03: Injection** | ✅ Consultas preparadas (mysql2), validación de entrada |
+| **A04: Insecure Design** | ✅ Clean Architecture, principios SOLID |
+| **A05: Security Misconfiguration** | ✅ Helmet, CORS configurado, variables .env |
+| **A06: Vulnerable Components** | ✅ npm audit regular, dependencias actualizadas |
+| **A07: Authentication Failures** | ✅ JWT + MFA/TOTP opcional, rate limiting |
+| **A08: Software Integrity Failures** | ✅ package-lock.json, verificación de dependencias |
+| **A09: Logging & Monitoring** | ✅ Winston logs, audit_log table |
+| **A10: Server-Side Request Forgery** | ✅ Validación de URLs, whitelist de dominios |
 
-### 4. Configurar Frontend (Pendiente)
+### Características Adicionales
+- **CSRF Protection** con tokens
+- **Idempotency Keys** para prevenir duplicados
+- **Password Strength** validado en frontend
+- **MFA Backup Codes** (10 por usuario)
+- **Session Management** con expiración JWT
+- **HTTP Security Headers** con Helmet
 
-```bash
-cd ../cafeteria-frontend
-# Por implementar
-```
-
-## 🚀 Uso
-
-### Backend (Desarrollo)
-```bash
-cd cafeteria-backend
-npm run dev
-```
-El servidor iniciará en `https://localhost:3443`
-
-### Frontend (Desarrollo - Pendiente)
-```bash
-cd cafeteria-frontend
-npm run dev
-```
-La aplicación iniciará en `http://localhost:5173`
-
-### Backend (Producción)
-```bash
-cd cafeteria-backend
-npm start
-```
-
-## 📚 Documentación
-
-### 📖 Documentación Compartida
-- **[INDICE_DOCUMENTACION](./docs/INDICE_DOCUMENTACION.md)** - Índice completo
-- **[GUIA_INICIO_RAPIDO](./docs/GUIA_INICIO_RAPIDO.md)** - Setup paso a paso ⭐
-- **[INSTALACION_SOFTWARE](./docs/INSTALACION_SOFTWARE.md)** - Instalación detallada
-- **[PLAN_DESARROLLO_CLEAN_CODE](./docs/PLAN_DESARROLLO_CLEAN_CODE.md)** - Arquitectura y Clean Code
-- **[CONECTAR_GITHUB](./docs/CONECTAR_GITHUB.md)** - Git y GitHub
-
-### 📖 Específica por Proyecto
-- **[Backend README](./cafeteria-backend/README.md)** - Documentación del API
-- **[Frontend README](./cafeteria-frontend/README.md)** - Documentación del frontend (pendiente)
-
-## 🏗️ Arquitectura
-
-### Separación Frontend-Backend
-
-```
-┌─────────────────────────────────────┐
-│       cafeteria-frontend            │
-│   (React/Vue - Puerto 5173)         │
-│   - Interfaz de usuario             │
-│   - Manejo de estado                │
-│   - Componentes visuales            │
-└─────────────┬───────────────────────┘
-              │ HTTP/HTTPS
-              │ (API REST)
-┌─────────────▼───────────────────────┐
-│       cafeteria-backend             │
-│   (Node.js + Express - Puerto 3443) │
-│   - API RESTful                     │
-│   - Lógica de negocio               │
-│   - Autenticación                   │
-│   - Validación                      │
-└─────────────┬───────────────────────┘
-              │ mysql2
-┌─────────────▼───────────────────────┐
-│          MySQL 8                    │
-│   - Base de datos                   │
-│   - Persistencia                    │
-└─────────────────────────────────────┘
-```
-
-### Backend - Arquitectura Limpia
-
-```
-cafeteria-backend/src/
-├── config/              # Configuraciones
-├── middlewares/         # Middlewares Express
-├── modules/             # Módulos por dominio
-│   ├── auth/           # Autenticación
-│   ├── users/          # Usuarios
-│   ├── ingredientes/   # Inventario
-│   ├── menu/           # Menú
-│   └── pedidos/        # Pedidos
-├── shared/             # Código compartido
-│   ├── errors/        # Errores personalizados
-│   ├── utils/         # Utilidades
-│   └── types/         # Tipos y enums
-└── database/          # Migraciones y seeds
-```
-
-Ver [PLAN_DESARROLLO_CLEAN_CODE.md](./cafeteria-backend/docs/PLAN_DESARROLLO_CLEAN_CODE.md) para más detalles.
-
-## 🔒 Seguridad (OWASP Top 10)
-
-- **A01** - Control de acceso: RBAC implementado
-- **A02** - Criptografía: bcrypt + HTTPS/TLS
-- **A03** - Inyección: Consultas preparadas
-- **A05** - Configuración: Helmet + CORS + env
-- **A07** - Autenticación: JWT + cookies HttpOnly
-- **A08** - Integridad: npm audit
-
-## 🧪 Tests
-
-```bash
-npm test
-```
+---
 
 ## 📝 Scripts Disponibles
 
 ### Backend
-```bash
-cd cafeteria-backend
 
-npm run dev          # Iniciar en modo desarrollo
-npm start            # Iniciar en modo producción
-npm run lint         # Ejecutar linter
-npm run lint:fix     # Corregir problemas de linting
-npm run format       # Formatear código
-npm run audit        # Auditoría de seguridad
+```bash
+npm run dev          # Desarrollo con nodemon
+npm start            # Producción
 npm run migrate      # Ejecutar migraciones
 npm run seed         # Sembrar datos iniciales
+npm run lint         # ESLint
+npm run format       # Prettier
+npm run audit        # Auditoría de seguridad
 ```
 
-### Frontend (Pendiente)
+### Frontend
+
 ```bash
-cd cafeteria-frontend
-
-npm run dev          # Iniciar en modo desarrollo
-npm run build        # Construir para producción
-npm run preview      # Preview de producción
+npm run dev          # Desarrollo con Vite
+npm run build        # Build para producción
+npm run preview      # Preview de build
+npm run lint         # ESLint
 ```
 
-## 👥 Roles del Sistema
+---
 
-- **Admin**: Acceso completo al sistema
-- **Empleado**: Gestión de inventario y pedidos
-- **Cliente**: Visualización de menú y creación de pedidos
+## 🧪 Testing
+
+```bash
+# Backend
+cd cafeteria-backend
+npm test
+
+# Frontend
+cd cafeteria-frontend
+npm test
+```
+
+---
 
 ## 🤝 Contribuir
 
+Las contribuciones son bienvenidas. Por favor:
+
 1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+2. Crea una rama (`git checkout -b feature/AmazingFeature`)
 3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-Ver [CONECTAR_GITHUB.md](./cafeteria-backend/docs/CONECTAR_GITHUB.md) para más detalles.
+### Lineamientos de Código
+- Sigue los principios de Clean Code
+- Usa ESLint y Prettier
+- Escribe tests para nuevas features
+- Documenta funciones complejas
+- Mantén commits atómicos y descriptivos
+
+---
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT.
+Este proyecto está bajo la Licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
 
-## 📧 Contacto
+---
 
-Tu Nombre - tu.email@ejemplo.com
+## 📧 Contacto y Soporte
 
-**Repositorios**:
-- Backend: [https://github.com/wilino/cafeteria-backend](https://github.com/wilino/cafeteria)
-- Frontend: https://github.com/wilino/cafeteria-frontend (Pendiente)
+- **Repositorio:** https://github.com/wilino/cafeteria
+- **Issues:** https://github.com/wilino/cafeteria/issues
+- **Email:** soporte@cafe.com
+
+---
 
 ## 🙏 Agradecimientos
 
 - Clean Code - Robert C. Martin
 - OWASP Foundation
 - Node.js Best Practices Guide
+- Material UI Team
+- Express.js Community
 
 ---
 
+## 📈 Roadmap
+
+### Próximas Funciones
+- [ ] Notificaciones en tiempo real (WebSockets)
+- [ ] Sistema de pagos en línea
+- [ ] App móvil nativa (React Native)
+- [ ] Dashboard de analytics
+- [ ] Exportación de reportes (PDF/Excel)
+- [ ] Multi-idioma (i18n)
+- [ ] Tema oscuro
+- [ ] Historial de cambios de inventario
+- [ ] Programación de pedidos
+- [ ] Sistema de calificaciones
+
+---
+
+**🎉 ¡Gracias por usar el Sistema de Gestión de Cafetería!**
+
 **Fecha de actualización:** 9 de noviembre de 2025  
-**Versión:** 2.0.0 (Arquitectura separada frontend-backend)  
-**Estado:** Backend ✅ | Frontend ⏳
+**Versión:** 2.0.0  
+**Estado:** ✅ Producción  
+**Mantenedor:** [@wilino](https://github.com/wilino)

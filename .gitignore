@@ -35,5 +35,5 @@ coverage/
 *.swo
 *~
 
-# Documentation (local only)
-docs/
+# Development Documentation (internal only)
+docs-dev/
