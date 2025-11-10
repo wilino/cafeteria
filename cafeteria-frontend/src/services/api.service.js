@@ -74,7 +74,7 @@ export const usersAPI = {
   create: (userData) => apiClient.post('/users', userData),
   update: (id, userData) => apiClient.put(`/users/${id}`, userData),
   delete: (id) => apiClient.delete(`/users/${id}`),
-  changePassword: (id, data) => apiClient.post(`/users/${id}/change-password`, data),
+  changePassword: (id, newPassword) => apiClient.post(`/users/${id}/change-password`, { newPassword }),
   getRoles: () => apiClient.get('/users/roles'),
 };
 
