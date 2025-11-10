@@ -28,6 +28,7 @@ import {
   InputLabel,
   IconButton,
   Chip,
+  Snackbar,
 } from '@mui/material';
 import {
   Add,
@@ -41,8 +42,10 @@ import { tableHeader, pageHeader } from '../styles/commonStyles';
 
 export const UsuariosPage = () => {
   const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -51,7 +54,7 @@ export const UsuariosPage = () => {
     nombre: '',
     email: '',
     password: '',
-    rol: 'cliente',
+    role_id: 3, // Default: Cliente
   });
   const [newPassword, setNewPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -60,6 +63,7 @@ export const UsuariosPage = () => {
 
   useEffect(() => {
     loadUsers();
+    loadRoles();
   }, []);
 
   const loadUsers = async () => {
@@ -76,6 +80,15 @@ export const UsuariosPage = () => {
     }
   };
 
+  const loadRoles = async () => {
+    try {
+      const response = await usersAPI.getRoles();
+      setRoles(response.data.data);
+    } catch (err) {
+      console.error('Error al cargar roles:', err);
+    }
+  };
+
   const handleOpenForm = (user = null) => {
     if (user) {
       setEditingUser(user);
@@ -83,11 +96,11 @@ export const UsuariosPage = () => {
         nombre: user.nombre,
         email: user.email,
         password: '',
-        rol: user.rol,
+        role_id: user.role_id,
       });
     } else {
       setEditingUser(null);
-      setFormData({ nombre: '', email: '', password: '', rol: 'cliente' });
+      setFormData({ nombre: '', email: '', password: '', role_id: 3 }); // 3 = Cliente
     }
     setFormOpen(true);
   };
@@ -100,17 +113,28 @@ export const UsuariosPage = () => {
   const handleSaveUser = async () => {
     try {
       setSubmitting(true);
+      setError('');
       if (editingUser) {
         const updateData = { ...formData };
         if (!updateData.password) delete updateData.password;
         await usersAPI.update(editingUser.id, updateData);
+        setSuccess('Usuario actualizado correctamente');
       } else {
         await usersAPI.create(formData);
+        setSuccess('Usuario creado correctamente');
       }
       await loadUsers();
       handleCloseForm();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al guardar usuario');
+      const errorData = err.response?.data;
+      let errorMsg = errorData?.message || 'Error al guardar usuario';
+      
+      // Si hay errores de validación detallados, mostrarlos
+      if (errorData?.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+        errorMsg = `${errorMsg}:\n${errorData.errors.map(e => `• ${e}`).join('\n')}`;
+      }
+      
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -122,8 +146,10 @@ export const UsuariosPage = () => {
       await loadUsers();
       setDeleteDialogOpen(false);
       setUserToDelete(null);
+      setSuccess('Usuario eliminado correctamente');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al eliminar');
+      const errorMsg = err.response?.data?.message || 'Error al eliminar usuario';
+      setError(errorMsg);
     }
   };
 
@@ -141,23 +167,33 @@ export const UsuariosPage = () => {
   const handleChangePassword = async () => {
     try {
       setSubmitting(true);
+      setError('');
       await usersAPI.changePassword(passwordUser.id, newPassword);
       setPasswordDialogOpen(false);
-      alert('Contraseña actualizada correctamente');
+      setSuccess('Contraseña actualizada correctamente');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al cambiar contraseña');
+      const errorData = err.response?.data;
+      let errorMsg = errorData?.message || 'Error al cambiar contraseña';
+      
+      // Si hay errores de validación detallados, mostrarlos
+      if (errorData?.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+        errorMsg = `${errorMsg}:\n${errorData.errors.map(e => `• ${e}`).join('\n')}`;
+      }
+      
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getRoleColor = (rol) => {
-    const colors = {
-      admin: 'error',
-      empleado: 'primary',
-      cliente: 'default',
+  const getRoleColor = (roleName) => {
+    if (!roleName) return 'default';
+    const roleMap = {
+      'Administrador': 'error',
+      'Empleado': 'primary',
+      'Cliente': 'default',
     };
-    return colors[rol] || 'default';
+    return roleMap[roleName] || 'default';
   };
 
   if (loading) {
@@ -203,8 +239,8 @@ export const UsuariosPage = () => {
                 <TableCell>{user.email}</TableCell>
                 <TableCell>
                   <Chip
-                    label={user.rol}
-                    color={getRoleColor(user.rol)}
+                    label={user.role_name || 'Sin rol'}
+                    color={getRoleColor(user.role_name)}
                     size="small"
                   />
                 </TableCell>
@@ -253,6 +289,11 @@ export const UsuariosPage = () => {
           {editingUser ? 'Editar Usuario' : 'Nuevo Usuario'}
         </DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+              {error}
+            </Alert>
+          )}
           <TextField
             fullWidth
             label="Nombre"
@@ -278,17 +319,20 @@ export const UsuariosPage = () => {
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             margin="normal"
             required={!editingUser}
+            helperText="Mínimo 8 caracteres: mayúsculas, minúsculas, números y símbolos"
           />
           <FormControl fullWidth margin="normal">
             <InputLabel>Rol</InputLabel>
             <Select
-              value={formData.rol}
+              value={formData.role_id}
               label="Rol"
-              onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, role_id: e.target.value })}
             >
-              <MenuItem value="cliente">Cliente</MenuItem>
-              <MenuItem value="empleado">Empleado</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
+              {roles.map((role) => (
+                <MenuItem key={role.id} value={role.id}>
+                  {role.nombre}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </DialogContent>
@@ -318,6 +362,11 @@ export const UsuariosPage = () => {
       >
         <DialogTitle>Cambiar Contraseña</DialogTitle>
         <DialogContent>
+          {error && (
+            <Alert severity="error" sx={{ mb: 2, whiteSpace: 'pre-line' }}>
+              {error}
+            </Alert>
+          )}
           <Typography variant="body2" color="text.secondary" gutterBottom>
             Usuario: {passwordUser?.nombre} ({passwordUser?.email})
           </Typography>
@@ -330,6 +379,7 @@ export const UsuariosPage = () => {
             margin="normal"
             required
             autoFocus
+            helperText="Mínimo 8 caracteres: mayúsculas, minúsculas, números y símbolos"
           />
         </DialogContent>
         <DialogActions>
@@ -367,6 +417,18 @@ export const UsuariosPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Success/Error Snackbar */}
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={() => setSuccess('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
+          {success}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

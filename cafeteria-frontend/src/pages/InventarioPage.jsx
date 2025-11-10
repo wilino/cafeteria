@@ -24,6 +24,7 @@ import {
   TextField,
   Chip,
   IconButton,
+  Snackbar,
 } from '@mui/material';
 import {
   Add,
@@ -41,6 +42,7 @@ export const InventarioPage = () => {
   const [ingredientes, setIngredientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [formOpen, setFormOpen] = useState(false);
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -49,9 +51,9 @@ export const InventarioPage = () => {
   const [itemToDelete, setItemToDelete] = useState(null);
   const [formData, setFormData] = useState({
     nombre: '',
-    stock: '',
-    unidad: '',
-    stock_minimo: '10',
+    cantidadDisponible: '',
+    unidadMedida: '',
+    cantidadMinima: '10',
   });
   const [stockAmount, setStockAmount] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -79,13 +81,13 @@ export const InventarioPage = () => {
       setEditingItem(item);
       setFormData({
         nombre: item.nombre,
-        stock: item.stock,
-        unidad: item.unidad,
-        stock_minimo: item.stock_minimo || '10',
+        cantidadDisponible: item.cantidadDisponible,
+        unidadMedida: item.unidadMedida,
+        cantidadMinima: item.cantidadMinima || '10',
       });
     } else {
       setEditingItem(null);
-      setFormData({ nombre: '', stock: '', unidad: '', stock_minimo: '10' });
+      setFormData({ nombre: '', cantidadDisponible: '', unidadMedida: '', cantidadMinima: '10' });
     }
     setFormOpen(true);
   };
@@ -96,17 +98,35 @@ export const InventarioPage = () => {
   };
 
   const handleSaveItem = async () => {
+    // Validación
+    if (!formData.nombre || formData.nombre.trim() === '') {
+      setError('El nombre es obligatorio');
+      return;
+    }
+    if (!formData.unidadMedida || formData.unidadMedida.trim() === '') {
+      setError('La unidad de medida es obligatoria');
+      return;
+    }
+    if (!formData.cantidadDisponible || parseFloat(formData.cantidadDisponible) < 0) {
+      setError('La cantidad debe ser mayor o igual a 0');
+      return;
+    }
+
     try {
       setSubmitting(true);
+      setError('');
       if (editingItem) {
         await ingredientesAPI.update(editingItem.id, formData);
+        setSuccess('Ingrediente actualizado correctamente');
       } else {
         await ingredientesAPI.create(formData);
+        setSuccess('Ingrediente creado correctamente');
       }
       await loadIngredientes();
       handleCloseForm();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al guardar');
+      const errorMsg = err.response?.data?.message || 'Error al guardar';
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -118,8 +138,10 @@ export const InventarioPage = () => {
       await loadIngredientes();
       setDeleteDialogOpen(false);
       setItemToDelete(null);
+      setSuccess('Ingrediente eliminado correctamente');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al eliminar');
+      const errorMsg = err.response?.data?.message || 'Error al eliminar';
+      setError(errorMsg);
     }
   };
 
@@ -135,20 +157,28 @@ export const InventarioPage = () => {
   };
 
   const handleUpdateStock = async () => {
+    if (!stockAmount || parseFloat(stockAmount) < 0) {
+      setError('La cantidad debe ser mayor o igual a 0');
+      return;
+    }
+
     try {
       setSubmitting(true);
+      setError('');
       await ingredientesAPI.updateStock(stockItem.id, parseFloat(stockAmount));
       await loadIngredientes();
       setStockDialogOpen(false);
+      setSuccess('Stock actualizado correctamente');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al actualizar stock');
+      const errorMsg = err.response?.data?.message || 'Error al actualizar stock';
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
   };
 
   const isLowStock = (item) => {
-    return parseFloat(item.stock) < parseFloat(item.stock_minima || 10);
+    return parseFloat(item.cantidadDisponible) < parseFloat(item.cantidadMinima || 10);
   };
 
   if (loading) {
@@ -196,9 +226,9 @@ export const InventarioPage = () => {
               <TableRow key={item.id}>
                 <TableCell>{item.nombre}</TableCell>
                 <TableCell align="right">
-                  {parseFloat(item.stock).toFixed(2)}
+                  {parseFloat(item.cantidadDisponible).toFixed(2)}
                 </TableCell>
-                <TableCell>{item.unidad}</TableCell>
+                <TableCell>{item.unidadMedida}</TableCell>
                 <TableCell>
                   {isLowStock(item) ? (
                     <Chip
@@ -267,8 +297,8 @@ export const InventarioPage = () => {
             fullWidth
             label="Cantidad"
             type="number"
-            value={formData.stock}
-            onChange={(e) => setFormData({ ...formData, cantidad: e.target.value })}
+            value={formData.cantidadDisponible}
+            onChange={(e) => setFormData({ ...formData, cantidadDisponible: e.target.value })}
             margin="normal"
             required
             inputProps={{ step: '0.01', min: '0' }}
@@ -276,8 +306,8 @@ export const InventarioPage = () => {
           <TextField
             fullWidth
             label="Unidad"
-            value={formData.unidad}
-            onChange={(e) => setFormData({ ...formData, unidad: e.target.value })}
+            value={formData.unidadMedida}
+            onChange={(e) => setFormData({ ...formData, unidadMedida: e.target.value })}
             margin="normal"
             required
             placeholder="kg, g, L, ml, unidad..."
@@ -286,8 +316,8 @@ export const InventarioPage = () => {
             fullWidth
             label="Cantidad Mínima (alerta)"
             type="number"
-            value={formData.stock_minima}
-            onChange={(e) => setFormData({ ...formData, cantidad_minima: e.target.value })}
+            value={formData.cantidadMinima}
+            onChange={(e) => setFormData({ ...formData, cantidadMinima: e.target.value })}
             margin="normal"
             inputProps={{ step: '1', min: '0' }}
           />
@@ -299,8 +329,8 @@ export const InventarioPage = () => {
             onClick={handleSaveItem}
             disabled={
               !formData.nombre ||
-              !formData.stock ||
-              !formData.unidad ||
+              !formData.cantidadDisponible ||
+              !formData.unidadMedida ||
               submitting
             }
           >
@@ -322,7 +352,7 @@ export const InventarioPage = () => {
             {stockItem?.nombre}
           </Typography>
           <Typography variant="body2" gutterBottom>
-            Stock actual: {parseFloat(stockItem?.stock || 0).toFixed(2)} {stockItem?.unidad}
+            Stock actual: {parseFloat(stockItem?.cantidadDisponible || 0).toFixed(2)} {stockItem?.unidadMedida}
           </Typography>
           <TextField
             fullWidth
@@ -372,6 +402,17 @@ export const InventarioPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={() => setSuccess('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
+          {success}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

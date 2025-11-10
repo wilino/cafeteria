@@ -36,11 +36,22 @@ const errorMiddleware = (err, req, res, next) => {
   }
 
   // Send error response
-  res.status(err.statusCode).json({
+  const response = {
     success: false,
     message: err.message,
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
+  };
+
+  // Include validation errors if present
+  if (err.errors && Array.isArray(err.errors) && err.errors.length > 0) {
+    response.errors = err.errors;
+  }
+
+  // Include stack trace in development
+  if (process.env.NODE_ENV === 'development') {
+    response.stack = err.stack;
+  }
+
+  res.status(err.statusCode).json(response);
 };
 
 module.exports = errorMiddleware;

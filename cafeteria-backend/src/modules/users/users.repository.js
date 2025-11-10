@@ -13,17 +13,23 @@ class UsersRepository {
    * @returns {Promise<array>} List of users
    */
   async findAll(limit, offset) {
-    const finalLimit = parseInt(limit) || 50;
-    const finalOffset = parseInt(offset) || 0;
+    // Convert to integers to ensure MySQL compatibility
+    const finalLimit = (limit !== undefined && limit !== null) ? Number(limit) : 50;
+    const finalOffset = (offset !== undefined && offset !== null) ? Number(offset) : 0;
     
-    const [rows] = await pool.execute(
-      `SELECT u.id, u.nombre, u.email, u.active, u.created_at, r.nombre as role_name
+    // Validate integers
+    if (!Number.isInteger(finalLimit) || !Number.isInteger(finalOffset) || finalLimit < 1 || finalOffset < 0) {
+      throw new Error(`Invalid pagination parameters: limit=${limit}, offset=${offset}`);
+    }
+    
+    // Use query without placeholders for LIMIT/OFFSET (safe because values are validated integers)
+    const query = `SELECT u.id, u.nombre, u.email, u.role_id, u.active, u.mfa_enabled, u.created_at, r.nombre as role_name
        FROM users u
        JOIN roles r ON u.role_id = r.id
        ORDER BY u.created_at DESC
-       LIMIT ? OFFSET ?`,
-      [finalLimit, finalOffset]
-    );
+       LIMIT ${finalLimit} OFFSET ${finalOffset}`;
+    
+    const [rows] = await pool.query(query);
     return rows;
   }
 

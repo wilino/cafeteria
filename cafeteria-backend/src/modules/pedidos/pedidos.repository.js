@@ -5,18 +5,27 @@
 const pool = require('../../config/database.config');
 
 class PedidosRepository {
-  async findAll(limit = 50, offset = 0) {
-    const finalLimit = parseInt(limit) || 50;
-    const finalOffset = parseInt(offset) || 0;
+  async findAll(limit, offset) {
+    // Convert to integers to ensure MySQL compatibility
+    const finalLimit = (limit !== undefined && limit !== null) ? Number(limit) : 50;
+    const finalOffset = (offset !== undefined && offset !== null) ? Number(offset) : 0;
     
-    const [rows] = await pool.execute(
-      `SELECT p.*, u.nombre as cliente_nombre 
+    // Validate integers
+    if (!Number.isInteger(finalLimit) || !Number.isInteger(finalOffset) || finalLimit < 1 || finalOffset < 0) {
+      throw new Error(`Invalid pagination parameters: limit=${limit}, offset=${offset}`);
+    }
+    
+    // Use query without placeholders for LIMIT/OFFSET (safe because values are validated integers)
+    const query = `SELECT p.id, p.usuario_id, p.estado_id, p.total, p.created_at,
+           u.nombre as cliente_nombre, u.email as cliente_email,
+           e.nombre as estado_nombre
        FROM pedidos p
-       JOIN users u ON p.user_id = u.id
+       JOIN users u ON p.usuario_id = u.id
+       JOIN estados_pedido e ON p.estado_id = e.id
        ORDER BY p.created_at DESC
-       LIMIT ? OFFSET ?`,
-      [finalLimit, finalOffset]
-    );
+       LIMIT ${finalLimit} OFFSET ${finalOffset}`;
+    
+    const [rows] = await pool.query(query);
     return rows;
   }
 
@@ -37,16 +46,25 @@ class PedidosRepository {
   }
 
   async findByCliente(clienteId, limit = 50, offset = 0) {
-    const finalLimit = parseInt(limit) || 50;
-    const finalOffset = parseInt(offset) || 0;
+    const finalLimit = parseInt(limit, 10) || 50;
+    const finalOffset = parseInt(offset, 10) || 0;
     
     const [rows] = await pool.execute(
-      `SELECT * FROM pedidos 
-       WHERE user_id = ? 
-       ORDER BY created_at DESC
+      `SELECT p.*, u.nombre as cliente_nombre 
+       FROM pedidos p
+       JOIN users u ON p.user_id = u.id
+       WHERE p.user_id = ? 
+       ORDER BY p.created_at DESC
        LIMIT ? OFFSET ?`,
       [clienteId, finalLimit, finalOffset]
     );
+    
+    // Load items for each pedido
+    for (const pedido of rows) {
+      const items = await this.getItems(pedido.id);
+      pedido.items = items;
+    }
+    
     return rows;
   }
 

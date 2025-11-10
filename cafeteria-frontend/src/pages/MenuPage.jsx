@@ -27,6 +27,7 @@ import {
   ListItemText,
   IconButton,
   Divider,
+  Snackbar,
 } from '@mui/material';
 import {
   Add,
@@ -47,6 +48,7 @@ export const MenuPage = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [cart, setCart] = useState([]);
   const [formOpen, setFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -60,6 +62,7 @@ export const MenuPage = () => {
     nombre: '',
     descripcion: '',
     precio: '',
+    categoria: '',
     disponible: true,
   });
 
@@ -114,7 +117,7 @@ export const MenuPage = () => {
       const idempotencyKey = uuidv4();
       const orderData = {
         items: cart.map((item) => ({
-          menu_item_id: item.id,
+          menuId: item.id,
           cantidad: item.cantidad,
         })),
       };
@@ -139,11 +142,12 @@ export const MenuPage = () => {
         nombre: item.nombre,
         descripcion: item.descripcion || '',
         precio: item.precio,
+        categoria: item.categoria || '',
         disponible: item.disponible,
       });
     } else {
       setEditingItem(null);
-      setFormData({ nombre: '', descripcion: '', precio: '', disponible: true });
+      setFormData({ nombre: '', descripcion: '', precio: '', categoria: '', disponible: true });
     }
     setFormOpen(true);
   };
@@ -154,17 +158,35 @@ export const MenuPage = () => {
   };
 
   const handleSaveItem = async () => {
+    // Validación de campos
+    if (!formData.nombre || formData.nombre.trim() === '') {
+      setError('El nombre es obligatorio');
+      return;
+    }
+    if (!formData.categoria || formData.categoria.trim() === '') {
+      setError('La categoría es obligatoria');
+      return;
+    }
+    if (!formData.precio || parseFloat(formData.precio) <= 0) {
+      setError('El precio debe ser mayor a 0');
+      return;
+    }
+
     try {
       setSubmitting(true);
+      setError('');
       if (editingItem) {
         await menuAPI.update(editingItem.id, formData);
+        setSuccess('Item del menú actualizado correctamente');
       } else {
         await menuAPI.create(formData);
+        setSuccess('Item del menú creado correctamente');
       }
       await loadMenuItems();
       handleCloseForm();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al guardar');
+      const errorMsg = err.response?.data?.message || 'Error al guardar';
+      setError(errorMsg);
     } finally {
       setSubmitting(false);
     }
@@ -176,8 +198,10 @@ export const MenuPage = () => {
       await loadMenuItems();
       setDeleteDialogOpen(false);
       setItemToDelete(null);
+      setSuccess('Item del menú eliminado correctamente');
     } catch (err) {
-      alert(err.response?.data?.message || 'Error al eliminar');
+      const errorMsg = err.response?.data?.message || 'Error al eliminar';
+      setError(errorMsg);
     }
   };
 
@@ -340,6 +364,15 @@ export const MenuPage = () => {
           />
           <TextField
             fullWidth
+            label="Categoría"
+            value={formData.categoria}
+            onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+            margin="normal"
+            required
+            placeholder="Bebidas, Alimentos, Postres..."
+          />
+          <TextField
+            fullWidth
             label="Precio"
             type="number"
             value={formData.precio}
@@ -398,6 +431,18 @@ export const MenuPage = () => {
           </Button>
         </DialogContent>
       </Dialog>
+
+      {/* Success/Error Snackbar */}
+      <Snackbar
+        open={!!success}
+        autoHideDuration={4000}
+        onClose={() => setSuccess('')}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setSuccess('')} severity="success" sx={{ width: '100%' }}>
+          {success}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

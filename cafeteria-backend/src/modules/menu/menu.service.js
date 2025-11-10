@@ -38,12 +38,19 @@ class MenuService {
   async createMenuItem(menuData) {
     const { nombre, descripcion, precio, disponible, categoria } = menuData;
 
+    // Validar campos requeridos
     if (!nombre || !precio) {
       throw new ValidationError('Missing required fields: nombre, precio');
     }
 
-    if (!isValidDecimal(precio) || parseFloat(precio) < 0) {
-      throw new ValidationError('Invalid precio');
+    // Validar categoria
+    if (!categoria || categoria.trim() === '') {
+      throw new ValidationError('Categoria is required');
+    }
+
+    // Validar precio
+    if (!isValidDecimal(precio) || parseFloat(precio) <= 0) {
+      throw new ValidationError('Price must be greater than 0');
     }
 
     const existingItem = await menuRepository.findByName(nombre);
@@ -56,7 +63,7 @@ class MenuService {
       descripcion: descripcion || '',
       precio: parseFloat(precio),
       disponible: disponible !== false,
-      categoria: categoria || 'General',
+      categoria: categoria.trim(),
     });
 
     logger.info('Menu item created', { menuId });
@@ -89,14 +96,21 @@ class MenuService {
     }
 
     if (menuData.precio !== undefined) {
-      if (!isValidDecimal(menuData.precio) || parseFloat(menuData.precio) < 0) {
-        throw new ValidationError('Invalid precio');
+      if (!isValidDecimal(menuData.precio) || parseFloat(menuData.precio) <= 0) {
+        throw new ValidationError('Price must be greater than 0');
       }
       updateData.precio = parseFloat(menuData.precio);
     }
 
     if (menuData.disponible !== undefined) {
       updateData.disponible = menuData.disponible;
+    }
+
+    if (menuData.categoria !== undefined) {
+      if (menuData.categoria.trim() === '') {
+        throw new ValidationError('Categoria cannot be empty');
+      }
+      updateData.categoria = menuData.categoria.trim();
     }
 
     if (menuData.categoria !== undefined) {
