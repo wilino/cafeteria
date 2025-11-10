@@ -12,14 +12,17 @@ class UsersRepository {
    * @param {number} offset - Offset for pagination
    * @returns {Promise<array>} List of users
    */
-  async findAll(limit = 50, offset = 0) {
+  async findAll(limit, offset) {
+    const finalLimit = parseInt(limit) || 50;
+    const finalOffset = parseInt(offset) || 0;
+    
     const [rows] = await pool.execute(
       `SELECT u.id, u.nombre, u.email, u.active, u.created_at, r.nombre as role_name
        FROM users u
        JOIN roles r ON u.role_id = r.id
        ORDER BY u.created_at DESC
        LIMIT ? OFFSET ?`,
-      [limit, offset]
+      [finalLimit, finalOffset]
     );
     return rows;
   }

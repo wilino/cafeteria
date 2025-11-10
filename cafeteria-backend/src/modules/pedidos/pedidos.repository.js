@@ -9,8 +9,8 @@ class PedidosRepository {
     const [rows] = await pool.execute(
       `SELECT p.*, u.nombre as cliente_nombre 
        FROM pedidos p
-       JOIN users u ON p.cliente_id = u.id
-       ORDER BY p.fecha_pedido DESC
+       JOIN users u ON p.user_id = u.id
+       ORDER BY p.created_at DESC
        LIMIT ? OFFSET ?`,
       [limit, offset]
     );
@@ -26,7 +26,7 @@ class PedidosRepository {
     const [rows] = await pool.execute(
       `SELECT p.*, u.nombre as cliente_nombre, u.email as cliente_email
        FROM pedidos p
-       JOIN users u ON p.cliente_id = u.id
+       JOIN users u ON p.user_id = u.id
        WHERE p.id = ?`,
       [id]
     );
@@ -36,8 +36,8 @@ class PedidosRepository {
   async findByCliente(clienteId, limit = 50, offset = 0) {
     const [rows] = await pool.execute(
       `SELECT * FROM pedidos 
-       WHERE cliente_id = ? 
-       ORDER BY fecha_pedido DESC
+       WHERE user_id = ? 
+       ORDER BY created_at DESC
        LIMIT ? OFFSET ?`,
       [clienteId, limit, offset]
     );
@@ -47,7 +47,7 @@ class PedidosRepository {
   async create(pedidoData) {
     const { clienteId, estado, total } = pedidoData;
     const [result] = await pool.execute(
-      'INSERT INTO pedidos (cliente_id, estado, total) VALUES (?, ?, ?)',
+      'INSERT INTO pedidos (user_id, estado, total) VALUES (?, ?, ?)',
       [clienteId, estado || 'pendiente', total || 0]
     );
     return result.insertId;
